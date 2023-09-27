@@ -4,7 +4,7 @@ import random
 WIDTH = 800
 HEIGHT = 800
 
-CELLS = 10
+CELLS = 15
 
 SIZE = WIDTH//CELLS #20 pixels by 20pixels
 
@@ -14,6 +14,7 @@ GREEN = (0, 255, 0)
 BLACK = (0,0,0)
 WHITE = (255,255,255)
 
+NUM = 30
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 clock = pygame.time.Clock()
@@ -88,9 +89,48 @@ class Obstacles: #generates num obstacles from given cells
         for o in self.obstacles:
             pygame.draw.rect(screen, RED, (o[0] * SIZE, o[1] * SIZE, SIZE, SIZE))
 
+class PathFinder:
+    #finds the path
+    #ask rover to print it 
+    #does all calculation here!
+    def __init__(self, target, start, obs):
+        self.target = target
+        self.start = start
+        self.obstacles = obs
+    
+    #is there a requirement for a node?
+    def solve(self):
+        frontier = []
+        visited = [] #visited nodes go in here
+        
+        
+
+
+class Node:
+    def __init__(self, prev, x, y, target):
+        self.prev = prev
+        self.x = x
+        self.y = y
+        self.target = target
+        self.h = self.heuristic_from_node()
+        self.g = self.get_g()
+        self.f = self.h + self.g #f = g + h for every node
+
+    def heuristic_from_node(self):
+        return (self.target[0]-self.x)**2 + (self.target[1]-self.y)**2
+    
+    def getPrev(self):
+        return self.prev
+    
+    def get_g(self):
+        if self.prev:
+            return 1 + self.prev.g
+        else:
+            return 1
+        
 
 def main():
-    obs = Obstacles(15) #future add mode: can be random or can be human generated using array
+    obs = Obstacles(NUM) #future add mode: can be random or can be human generated using array
     obstacles = obs.generate_obstacles()
     grid = Grid(obstacles)
     start = grid.get_start((-15,15))
