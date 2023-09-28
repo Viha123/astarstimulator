@@ -4,7 +4,7 @@ import random
 WIDTH = 800
 HEIGHT = 800
 
-CELLS = 15
+CELLS = 20
 
 SIZE = WIDTH//CELLS #20 pixels by 20pixels
 
@@ -14,8 +14,8 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLACK = (0,0,0)
 WHITE = (255,255,255)
-
-NUM = 30
+PATHCOLOR = (51,153,255)
+NUM = 100
 pygame.init()
 screen = pygame.display.set_mode((WIDTH,HEIGHT))
 clock = pygame.time.Clock()
@@ -91,8 +91,8 @@ class PathFinder:
     
     #is there a requirement for a node?
     def solve(self):
-        frontier = []
-        visited = [] #visited nodes go in here
+        frontier = [] #where we have looked, and possible places to go 
+        visited = [] #where we have been 
         currentNode = Node(None, self.start[0], self.start[1], self.target)
         frontier.append(currentNode) #startNode will be the first member of frontier
         frontier = sorted(frontier, key = lambda n: n.f)
@@ -103,7 +103,7 @@ class PathFinder:
             #pop frontier and move to closed list, call this current node
             currentNode = frontier.pop(0)
             #check if target added to visited
-            visited.append(currentNode)
+            visited.append(currentNode) 
             if currentNode.x == self.target[0] and currentNode.y == self.target[1]:
                 targetFound = True #exit out of while loop really doesn't matter waht happens after this
                 targetNode = currentNode
@@ -125,7 +125,13 @@ class PathFinder:
                     frontier.append(Node(currentNode, neighbor[0],neighbor[1], self.target))
 
             frontier = sorted(frontier, key = lambda n: n.f)
-
+            #try drawing out both frontier and visited turn by turn. I think printing only visited may be alright
+            # pygame.draw.rect(screen, (0,0,100), (path[i][0] * SIZE, path[i][1] * SIZE, SIZE, SIZE))
+            for element in frontier:
+                if (element.x,element.y) != self.start and (element.x, element.y) != self.target:
+                    pygame.draw.rect(screen, PATHCOLOR, (element.x * SIZE, element.y * SIZE, SIZE, SIZE))
+                    pygame.time.delay(1)
+                    pygame.display.update()
 
         path = [] #plan is to get a list of tuples out of this
         #targetNode  
@@ -188,14 +194,14 @@ def main():
     obstacles = obs.generate_obstacles()
     grid = Grid(obstacles)
     # start = grid.get_start((-15,15))
-    start = grid.get_start((0,0))
+    # start = grid.get_start((0,0))
+    start = (0,0)
     target = grid.get_start(start) #same function essentially
-    # start = (0,0)
+
     # target = (CELLS-1, CELLS-1)
     rover = Rover(start[0], start[1], obstacles, target)
 
     aStar = PathFinder(target, start, obstacles)
-    path = aStar.solve()
     
     
     while True:
@@ -207,8 +213,12 @@ def main():
         grid.draw(target)
         obs.draw()
         rover.draw()
+        pygame.display.update()
+        path = aStar.solve()
+
         rover.draw_path(path)
         pygame.display.update()
+        pygame.time.delay(1000)
         clock.tick(60)
     
 
